@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>无标题文档</title>
+<style>
+body,ul,p{margin:0;padding:0;}
+img{display:none;float:left;}
+#box{width:314px;height:148px;margin:30px auto;font-family:Arial, Helvetica, sans-serif;}
+#list2{display:none;}
+#box div{width:292px;height:104px;border:1px solid #c6c6c6;padding:10px 0 0 10px; }
+#top{height:30px;width: 165px;}
+span{display:block;width:80px;height:30px;border:1px solid #c6c6c6;float:left;font-size:14px;line-height:30px;text-align:center;color:#737373;border-bottom:none;}
+.show{width:80px;height:30px;border:1px solid #c6c6c6;border-bottom:none;color:#000;background:#fff;}
+ul {float:left;width:170px;height:96px;}
+li{width:170px;height:31px;font-size:12px;line-height:30px;margin:0 0 1px 1px;background:#dee7e7;list-style:none;}
+li a{text-decoration:none;color:#8c9191;padding-left:7px;}
+.active{background:#636363;display:block;}
+.active a{color:#fff;}
+.show1{display: block;}
+.hide{display: none;}
+.hid{
+	background-color: red;
+}
+.hid a{
+	color: #fff;
+}
+</style>
+<script>
+
+</script>
+</head>
+
+<body>
+
+<div id="tags">
+	
+</div>
+
+<div id="box">
+	<p id="top">
+		<span class="show">专题</span>
+		<span>视频</span>
+	</p>
+	<div class="show1 oDiv" id="bottom">
+		<img class="active"  src="image_two/list1.jpg" alt="" />
+		<img src="image_two/list2.jpg" alt="" />
+		<img src="image_two/list1.jpg" alt="" />
+		<!-- <img src="image_two/list2.jpg" alt="" /> -->
+		<ul>
+			<li class="hid" ><a href="#">奇虎360纽交所上市11</a></li>
+			<li><a href="#">2011年IT领袖峰会</a></li>
+			<li><a href="#">CCBN召开 助三网融合</a></li>
+			<!-- <li><a href="#">CCBN召开 助三网融合</a></li> -->
+		</ul>
+	</div>
+	<div class="hide oDiv" id="bottom1">
+		<img src="image_two/list2.jpg" alt="" class="active" />
+		<img src="image_two/list1.jpg" alt="" />
+		<img src="image_two/list2.jpg" alt="" />
+		<ul>
+			<li class="" ><a href="#">奇虎360纽交所上市22</a></li>
+			<li><a href="#">CCBN召开 助三网融合</a></li>
+			<li><a href="#">CCBN召开 助三网融合</a></li>
+		</ul>
+	</div>
+</div>
+</body>
+<script>
+	var time = null;
+	var num = 0;
+	var parent = 0;
+	var oDiv = document.querySelectorAll('.oDiv');
+	var span = document.querySelectorAll('#top span');
+	var img = oDiv[num].querySelectorAll('img');
+	var li = oDiv[num].querySelectorAll('li');
+	box.onmousemove = function(){
+		clearInterval(time)
+	}
+	box.onmouseout = function(){
+		fn();
+	}
+	fn();
+	function fn(){
+		time = setInterval(function(){
+			img[parent].style.display = 'none';
+			li[parent].className = '';
+			parent++
+			if(parent>li.length-1){
+				parent=0;
+				oDiv[num].style.display = 'none';
+				span[num].style.backgroundColor='rgba(0,0,0,.0)';
+				num++
+				if(num>span.length-1){
+					num=0
+				}
+				oDiv[num].style.display = 'block';
+				span[num].style.backgroundColor='#fff';
+			}
+			 img = oDiv[num].querySelectorAll('img');
+			 li = oDiv[num].querySelectorAll('li');
+			 img[parent].style.display = 'block';
+			 li[parent].className ='hid';
+		},1000)
+	}
+	for (var i = 0; i < span.length; i++) {
+		span[i].index = i;
+		span[i].onmousemove = function(){
+			span[num].style.backgroundColor = 'rgba(0,0,0,.0)';
+			oDiv[num].style.display = 'none';
+			li[parent].className = '';
+			img[parent].style.display = 'none';
+			num =this.index;
+			parent =0;
+			li = oDiv[num].querySelectorAll('li');
+			img = oDiv[num].querySelectorAll('img');
+			li[parent].className = 'hid';
+			img[parent].style.display = 'block';
+			span[num].style.backgroundColor = '#fff';
+			oDiv[num].style.display = 'block';
+		}
+		var li1 = oDiv[i].querySelectorAll('li');
+		for (var k = 0; k < li1.length; k++) {
+			li1[k].index = k;
+			li1[k].onmouseover = function(){
+				li[parent].className = '';
+				img[parent].style.display = 'none';
+				parent = this.index;
+				img[parent].style.display = 'block';
+				li[parent].className = 'hid';
+			}
+		}
+	}
+</script>
+</html>

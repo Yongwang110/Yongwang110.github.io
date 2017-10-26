@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+	</head>
+	<style>
+		body{
+			background: skyblue;
+		}
+		*{
+			margin: 0;
+			padding: 0;
+		}
+		.pic{
+        width: 236px;
+        box-shadow:0 1px 3px rgba(0,0,0,.3);
+        overflow:hidden;
+        margin-top:10px;
+      }
+		img{
+        width:236px;
+        border: none;
+        display: block;
+      }
+      ul{
+        list-style: none;
+        margin: 0 auto;
+        /*border:1px solid #000;*/
+        width:1050px;
+        overflow: hidden;
+      }
+      li{
+        /*position: absolute;*/
+        border: 1px solid #ccc;
+        float: left;
+        margin: 8px;
+        width:236px;
+      }
+      #loading{
+        height: 65px;
+        width:100%;
+        text-align: center;
+        background: #fff;
+        position: fixed;
+        bottom:0;
+        display: none;
+      }
+      #loading img{
+        display: inline-block;
+        height: 65px;
+        width:65px;
+      }
+	</style>
+	<body>
+		<ul>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+		</ul>
+		<div id="loading">
+	      <img src="1.gif">
+	    </div>
+	    <script src="jsonp_1.0.js"></script>
+		<script>
+			const lis = Array.from(document.getElementsByTagName('li'));
+			let num = 0;  //设置加载page；
+			let onOff = true; //设置开关，防止一次加载page过多
+			pbl(num); //默认加载一页
+			function pbl(num){
+				loading.style.display = 'block';  //当加载的时候小海豚为显示状态
+				onOff = false; //当加载完以后关闭开关
+				jsonp({ //设置一个jsonp
+					url:'http://www.wookmark.com/api/json/popular', //获取一个地址
+					data:{
+						page:num //page
+					},
+					callback:'callback',//给网址后面添加一个  ?callback
+					success:function(data){ //然后添加一个函数
+						if(!data.length){
+							loading.style.display = 'none';
+							return;
+							} //如果获取到的数组length为空就不搞它
+						data.forEach((e,i)=>{ //找到每个图片
+							let div = document.createElement('div'); //创建一个div
+							div.className = 'pic';  //给div添加样式
+							let img = new Image(); //创建一个img标签
+							img.src = e.preview; //让img的地址等于图片相对地址
+							img.onload = function(){ //只有能打开的图片才插入
+								let minLi = MinIndex(); //找到最短的li，插入
+								div.appendChild(img); //把img插入到div里面
+								minLi.appendChild(div) //再把div插入到最短的li里面
+							}
+						}); //循环完毕
+						onOff = true;//开关打开
+						loading.style.display = 'none'; //小海豚关闭
+					}
+				})
+			}
+			//滚轮
+			document.onscroll = function(){
+				let minLi = MinIndex(); //找到最小的li
+				if(minLi.getBoundingClientRect().bottom <= window.innerHeight){//判断是否到达当前page底部
+					if(onOff){//再判断一下开关是否开启
+						num++;//加载下一页
+						pbl(num);//渲染下一页
+					}
+				}
+			}
+			//找到li中谁的高度最小
+			function MinIndex(){
+				let arr = [];//创建一个数组，用来储li数据
+				lis.forEach((e)=>{
+					arr.push(e.scrollHeight);//把每个li高度的数据添加到数组里面
+				})
+				let min = Math.min.apply('',arr); //找到高度最小的li
+				return lis[arr.findIndex(e=>e==min)]//把高度最小的return出来
+			}
+		</script>
+	</body>
+</html>

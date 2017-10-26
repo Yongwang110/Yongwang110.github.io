@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+<style>
+#box{
+    width:100px;
+    height: 100px;
+    background: red;
+    position: absolute;
+    top:0;
+    left:0;
+}    
+</style>
+</head>
+<body>
+   <div id="box"></div>
+<script>
+    
+    function Drag(id){
+        var box = document.getElementById(id);/*获取需要拖拽的元素*/
+        var disX = 0; /*初始化值*/
+        var disY = 0;/*初始化值*/
+        box.addEventListener('mousedown',down); /*当元素摁下的时候*/
+        function down(ev){ /*设置摁下事件函数*/
+            disX = ev.clientX - this.offsetLeft; 
+            /*用鼠标距离可视区域左边的距离减去元素本身距离可视区域左边的距离 求出鼠标在元素身上的x轴位置*/
+            disY = ev.clientY - this.offsetTop;
+			 /*用鼠标距离可视区域上边的距离减去元素本身距离可视区域上边的距离 求出鼠标在元素身上的y轴位置*/
+            document.addEventListener('mousemove',move);
+            /*设置在元素身上的移动事件*/
+            document.addEventListener('mouseup',up);
+            /*设置当鼠标抬起的事件*/
+            function move(ev){/*移动事件函数*/
+                box.style.left = ev.clientX - disX + 'px'; 
+                /*元素的x轴等于现在鼠标距离可视区域左边的距离减去鼠标距离元素左边的距离*/
+                box.style.top = ev.clientY - disY + 'px';
+                 /*元素的y轴等于现在鼠标距离可视区域上边的距离减去鼠标距离元素上边的距离*/
+            }
+            function up(){ /*抬起事件函数*/
+                document.removeEventListener('mousemove',move);
+                /*删除掉移动事件*/
+                document.removeEventListener('mouseup',up);
+                 /*删除掉抬起事件*/
+                // alert(1);
+            }
+        }
+    }
+
+    Drag('box');
+
+</script>
+</body>
+</html>
