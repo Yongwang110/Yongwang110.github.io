@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style>
+    	body{
+    		background:skyblue;
+    	}
+      *{
+        margin: 0;
+        padding: 0;
+      }
+      .pic{
+        width: 236px;
+        box-shadow:0 1px 3px rgba(0,0,0,.3);
+        overflow:hidden;
+        margin-top:10px;
+      }
+      img{
+        width:236px;
+        border: none;
+        display: block;
+      }
+      ul{
+        list-style: none;
+        margin: 0 auto;
+        /* border:1px solid #000; */
+        /* overflow: hidden; */
+        position: relative;
+      }
+      li{
+        position: absolute;
+        border: 1px solid #ccc;
+        /* float: left; */
+        /* margin: 8px; */
+        width:236px;
+        transition:.5s;
+      }
+      #loading{
+        height: 65px;
+        width:100%;
+        text-align: center;
+        background: #fff;
+        position: fixed;
+        bottom:0;
+        display: none;
+      }
+      #loading img{
+        display: inline-block;
+        height: 65px;
+        width:65px;
+      }
+    </style>
+  </head>
+  <body>
+    <ul id="ul">
+    	
+        <!-- <li>
+          <div class="pic">
+            <img src="http:\/\/www.wookmark.com\/images\/original\/638518_wookmark.jpg">
+          </div>
+        </li> -->
+         
+    </ul>
+    <div id="loading">
+      <img src="1.gif">
+    </div>
+  <script src="jsonp_1.0.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+
+    /*
+        findIndex:
+            Array.findIndex(function(e){
+                return e == ?
+            })
+        在数组中把条件成立的索引返回出来
+
+        http://www.wookmark.com/api/json/popular
+    
+    */
+    
+    let num = 0; //设置懒加载
+    let onOff = true;  //创建个开关
+    //可视区的宽度
+    const iW = document.documentElement.clientWidth;
+    //一个li的宽度
+    const iLW = 236;
+    const interval = 10; //间隔
+    const act = iLW + interval; //实际宽度
+    const ul = document.getElementById('ul'); //获取ul
+    let len = Math.floor(iW / act);//一行能放几个li
+    let arrL = []; //设置一个数组，用来存储li的left值
+    let arrT = []; //设置一个数组，用来存储li的top值
+    
+    ul.style.width = act * len - interval + 'px'; //设置ul的宽度
+
+    for(var i = 0;i < len; i++){  //循环一下一行中的li，把它们的left值和top值添加到数组里面
+        arrT.push(0); //[0,0,0,0,0]
+        arrL.push(i*act)//[0,246,492,738]
+    }
+
+    pbl(num);
+    function pbl(num){
+        onOff = false; //关闭开关
+        loading.style.display = 'block'; //加载数据时，小海豚打开
+        jsonp({
+            url:'http://www.wookmark.com/api/json/popular', //拿到图片地址
+            data:{
+                page:num //设置页数
+            },
+            success:function(data){ //当成功后调用函数
+                if(data.length){ //如果当前数组有leng的话证明他有图片，执行，，减少性能消耗
+                    data.forEach(e => { //循环一下数组
+                        let li = document.createElement('li'); //创建一个li
+                        let img = new Image(); //创建一个img
+                        img.src = e.preview; //img的地址等于元素的preview属性
+                        img.onload = function(){ //能加载的再执行，过滤掉坏的
+                            let m = minIndex(); //找到最短的一行
+                            let iLH = e.height * (iLW / e.width);   //求出比例防止变形
+                            img.style.height = iLH + 'px'; //给img设置上高度
+                            li.style.cssText = `left:${arrL[m]}px;top:${arrT[m]}px;`;//给li添加上定位值
+                            li.append(img);//把img塞给li
+                            ul.append(li); //把li塞到ul里面
+                            arrT[m] += iLH + interval;//[140,150,90,120]  因为x轴的li个数是不变的但是y轴的li个数是每添加一个变化一下的所以要让它前一个的高度加上现在的高度  就等于它的y轴总高度
+                        }
+                    });
+                    onOff = true; //加载完以后开关打开
+                    loading.style.display = 'none'; //再把小海豚搞掉
+                }else{
+                    //没数据了
+
+                    loading.children[0].src = '2.jpg'; //走到最后拉  没数据啦  就把小海豚换成小汽车
+
+                }
+            }
+        });
+    }
+
+    document.onscroll = function(){ //滚轮事件
+        let m = minIndex(); //获取最短的y轴
+        // console.log(arrT[m],window.innerHeight + document.body.scrollTop)
+        if(arrT[m] <= window.innerHeight + document.body.scrollTop){
+        	//如果最短的这个y轴高度小于或者等于当前页面的高度加上滚动条的已滚动内容高度证明当前页面加载完啦 需要加载下一页啦
+            if(onOff){ //如果开关是打开的话就加载
+                num ++;//加载
+                pbl(num);//执行一遍数据
+            }
+        }
+    }
+
+    window.onresize = function(){ //当系统比例变化的时候
+        const iW = document.documentElement.clientWidth; //重新获取可视区的宽度
+        len = Math.floor(iW / act); //x轴的可容纳数量
+        if(len > 7){ //设置一个最大值 ，一行最多可容纳7个
+            len = 7;
+        }else if(len < 3){ //设置一个最小值  一行最少有三个
+            len = 3;
+        }
+        arrL.length = arrT.length = 0; //再把两个数组都清空
+        ul.style.width = act * len - interval + 'px';//设置ul的宽度
+        for(var i = 0;i < len; i++){ //找到x轴的li数量
+            arrT.push(0); //每有一个li往数组里面添加1个字符
+            arrL.push(i*act); //第一行的left值是不一样的，所以要乘以i
+        }
+
+        let lis = Array.from(document.getElementsByTagName('li'));//获取到所有的li，再把它们转化成数组好forEach
+        lis.forEach(e=>{
+            let m = minIndex(); //找到最短的
+            e.style.cssText = `left:${arrL[m]}px;top:${arrT[m]}px`; //设置它们的定位值
+            arrT[m] += e.scrollHeight + interval;//因为x轴的li个数是不变的但是y轴的li个数是每添加一个变化一下的所以要让它前一个的高度加上现在的高度  就等于它的y轴总高度
+        });
+    }
+
+    //找最小值索引
+    function minIndex(){
+       let min = Math.min.apply('',arrT);
+       return arrT.findIndex(e=>e==min);
+    }
+
+    
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>
